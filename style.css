@@ -224,3 +224,52 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 /* header buttons: fixed widths so the row never reflows when a button changes its label */
 .head-actions .btn { white-space: nowrap; }
 #btnReset { min-width: 6.5em; }
+
+/* ===== mobile-friendly additions ===== */
+.stage-scroll { border-radius: 14px; }
+.sheet-head, #zoomBar, #mbar { display: none; }
+
+@media (max-width: 940px) {
+  /* iOS zooms the page when an input is smaller than 16px */
+  input[type="text"], input[type="search"], select { font-size: 16px; min-height: 46px; }
+  .btn, .chip { min-height: 44px; }
+  body.has-bar { padding-bottom: 150px; }
+
+  /* header: export first and full width, then a tidy grid */
+  .head-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
+  #btnExport { grid-column: 1 / -1; order: -1; min-height: 48px; }
+  #btnGuide { grid-column: 1 / -1; order: 3; }
+  .sub { font-size: .85rem; }
+
+  /* the table: bigger touch area, can be zoomed and scrolled sideways */
+  .stage { padding: 10px; }
+  .stage-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
+  #board { touch-action: pan-x pan-y; }
+  .stage.zoom #board { width: 190%; }
+  #zoomBar { display: flex; justify-content: center; order: 3; }
+  .hint { order: 4; }
+  #slotBox { order: 5; }
+  #meanBox { order: 6; }
+
+  /* card picker becomes a bottom sheet */
+  #boxPick { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; margin: 0; order: 0;
+    height: 68vh; height: 68dvh; border-radius: 22px 22px 0 0; border-bottom: 0; overflow: hidden;
+    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 0 var(--lilac), 0 -12px 30px rgba(74, 51, 71, .28);
+    transform: translateY(105%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
+  body.sheet-open #boxPick { transform: none; visibility: visible; transition: transform .22s ease; }
+  #boxPick > h2 { display: none; }
+  .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .sheet-head strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent-dark); }
+  #boxPick .grid { max-height: none; flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  #boxPick .cardbtn { min-height: 64px; }
+
+  /* quick actions for the selected card, always within thumb reach */
+  #mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; flex-direction: column; gap: 8px;
+    padding: 10px 12px max(10px, env(safe-area-inset-bottom, 0px)); background: var(--panel); border-top: 2px solid var(--fg);
+    box-shadow: 0 -4px 0 var(--butter); }
+  body.sheet-open #mbar { display: none; }
+  .mb-title { font-size: .9rem; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .mb-btns { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+  .mb-btns .btn { padding: 6px 4px; font-size: .86rem; }
+}
