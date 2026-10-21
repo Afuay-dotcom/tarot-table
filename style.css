@@ -273,3 +273,32 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   .mb-btns { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
   .mb-btns .btn { padding: 6px 4px; font-size: .86rem; }
 }
+
+
+/* ===== shorter page on phones: fold the rarely-used boxes, keep undo/save always within reach ===== */
+#mbar0 { display: none; }
+@media (max-width: 940px) {
+  body { padding-bottom: 130px; }
+  body.has-bar { padding-bottom: 150px; }
+  .box.fold > h2 { cursor: pointer; margin-bottom: 0; }
+  .box.fold > h2::after { content: "+"; margin-left: 4px; font-family: var(--font-num); }
+  .box.fold:not(.closed) > h2::after { content: "–"; }
+  .box.fold.closed { gap: 0; padding-bottom: 12px; }
+  .box.fold.closed > :not(h2) { display: none; }
+  #mbar0 { display: flex; gap: 8px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 10px 12px max(10px, env(safe-area-inset-bottom, 0px)); background: var(--panel); border-top: 2px solid var(--fg); box-shadow: 0 -4px 0 var(--butter); }
+  #mbar0 .btn { flex: 1; }
+  #mbar0 .primary { flex: 2; }
+  body.has-bar #mbar0, body.sheet-open #mbar0 { display: none; }
+  /* the top buttons are now at the bottom, so the header only needs the guide */
+  #btnExport, #btnUndo { display: none; }
+  .head-actions { grid-template-columns: 1fr 1fr; }
+  #btnGuide { grid-column: auto; order: 0; }
+  #btnReset { order: 1; }
+}
+
+@media (max-width: 940px) {
+  .mb-top { display: flex; align-items: center; gap: 8px; }
+  .mb-top .mb-title { flex: 1; min-width: 0; text-align: left; }
+  .mb-s { min-height: 36px; padding: 2px 12px; font-size: .82rem; flex: none; }
+}
