@@ -34,7 +34,8 @@
         <div class="chips" id="spreadChips"></div>
       </div>
 
-      <div class="stage"><canvas id="board" width="2400" height="1000" aria-label="โต๊ะเรียงไพ่ ลากไพ่เพื่อย้ายตำแหน่ง"></canvas></div>
+      <div class="stage" id="stage"><div class="stage-scroll"><canvas id="board" width="2400" height="1000" aria-label="โต๊ะเรียงไพ่ ลากไพ่เพื่อย้ายตำแหน่ง"></canvas></div></div>
+      <div id="zoomBar"><button class="chip" id="btnZoom" type="button" aria-pressed="false">ขยายโต๊ะ (เลื่อนดูซ้ายขวาได้)</button></div>
       <p class="hint" id="hintP">แตะที่ไพ่เพื่อเลือก ลากเพื่อย้าย แตะสองครั้งเพื่อกลับหัว/หงายขึ้น</p>
 
       <div class="box" id="boxSlots">
@@ -72,7 +73,8 @@
 
       <div class="box" id="boxPick">
         <h2>เลือกไพ่</h2>
-        <input type="search" id="q" placeholder="พิมพ์ชื่อไพ่ เช่น 3 ถ้วย, อัศวินดาบ, Tower แล้วกด Enter" enterkeyhint="done" autocomplete="off" aria-label="ค้นหาไพ่">
+        <div class="sheet-head"><strong id="sheetTitle">เลือกไพ่</strong><button class="btn" id="sheetClose" type="button">เสร็จ</button></div>
+        <input type="search" id="q" placeholder="ค้นหาไพ่ เช่น 3 ถ้วย, อัศวินดาบ, tower" enterkeyhint="done" autocomplete="off" aria-label="ค้นหาไพ่">
         <div class="tabs" id="tabs"></div>
         <div class="grid" id="grid"></div>
       </div>
@@ -100,6 +102,16 @@
         <label class="chk"><input type="checkbox" id="optLegend"> แสดงรายการสรุปท้ายรูป</label>
       </div>
     </div>
+  </div>
+</div>
+
+<div id="mbar" hidden>
+  <div class="mb-title" id="mbTitle"></div>
+  <div class="mb-btns">
+    <button class="btn primary" id="mbPick" type="button">เลือกไพ่</button>
+    <button class="btn" id="mbRev" type="button">กลับหัว</button>
+    <button class="btn" id="mbMean" type="button">ความหมาย</button>
+    <button class="btn" id="mbClear" type="button">เอาออก</button>
   </div>
 </div>
 
