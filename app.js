@@ -692,7 +692,7 @@ function flashHint(msg, ms) {
 
 /* undo */
 function snapshot() { return JSON.stringify({ spread: S.spread, slots: S.slots, labels: S.labels, legend: S.legend }); }
-function syncUndo() { var b = $("btnUndo"); if (b) b.disabled = !UNDO.length; }
+function syncUndo() { var b = $("btnUndo"), b2 = $("mb0Undo"), b3 = $("mbUndo"); if (b) b.disabled = !UNDO.length; if (b2) b2.disabled = !UNDO.length; if (b3) b3.disabled = !UNDO.length; }
 function pushUndo() { if (sampleOn) return; UNDO.push(snapshot()); if (UNDO.length > 30) UNDO.shift(); syncUndo(); }
 function undo() {
   if (!UNDO.length) return;
@@ -963,6 +963,19 @@ $("btnZoom").addEventListener("click", function () {
   this.textContent = on ? "ย่อให้พอดีจอ" : "ขยายโต๊ะ (เลื่อนดูซ้ายขวาได้)";
 });
 document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
+
+$("mb0Undo").addEventListener("click", function () { $("btnUndo").click(); });
+$("mbUndo").addEventListener("click", function () { $("btnUndo").click(); });
+$("mbSave").addEventListener("click", function () { $("btnExport").click(); });
+$("mb0Save").addEventListener("click", function () { $("btnExport").click(); });
+["slotBox", "boxSlots", "boxImgs", "boxSettings"].forEach(function (id) {
+  var b = $(id), h = b.querySelector("h2");
+  b.classList.add("fold", "closed");
+  h.setAttribute("role", "button"); h.tabIndex = 0;
+  function tg() { b.classList.toggle("closed"); }
+  h.addEventListener("click", tg);
+  h.addEventListener("keydown", function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tg(); } });
+});
 
 /* ---------- Start ---------- */
 buildTabs(); buildBg(); syncUndo();
