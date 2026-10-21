@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>โต๊ะเรียงไพ่ทาโรต์</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Mali:wght@400;500;600;700&family=Sriracha&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9z"/><path d="M19 15l.9 2.6 2.6.9-2.6.9L19 22l-.9-2.6-2.6-.9 2.6-.9z" opacity=".7"/></svg></span>
+      <div>
+        <h1>โต๊ะเรียงไพ่ทาโรต์</h1>
+        <p class="sub">เลือกรูปแบบการเรียง จัดไพ่ตามที่เปิดจริง แล้วบันทึกเป็นรูปไปใส่ในไฟล์ให้ลูกดวง</p>
+      </div>
+    </div>
+    <div class="head-actions">
+      <button class="btn" id="btnGuide" type="button">คู่มือและความหมายไพ่</button>
+      <button class="btn" id="btnUndo" type="button" disabled>ย้อนกลับ</button>
+      <button class="btn" id="btnReset" type="button">ล้างโต๊ะ</button>
+      <button class="btn primary" id="btnExport" type="button">บันทึกเป็นรูป PNG</button>
+    </div>
+  </header>
+
+  <div class="main">
+    <div class="col">
+      <div class="box" id="boxSpread">
+        <h2>รูปแบบการเรียง</h2>
+        <div class="chips" id="spreadChips"></div>
+      </div>
+
+      <div class="stage"><canvas id="board" width="2400" height="1000" aria-label="โต๊ะเรียงไพ่ ลากไพ่เพื่อย้ายตำแหน่ง"></canvas></div>
+      <p class="hint" id="hintP">แตะที่ไพ่เพื่อเลือก ลากเพื่อย้าย แตะสองครั้งเพื่อกลับหัว/หงายขึ้น</p>
+
+      <div class="box" id="boxSlots">
+        <h2>ช่องไพ่ทั้งหมด</h2>
+        <div class="slots" id="slotChips"></div>
+        <div class="row">
+          <button class="btn" id="btnAdd" type="button">+ เพิ่มช่อง</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col side">
+      <div class="box" id="slotBox">
+        <h2 id="slotTitle">ช่องที่เลือก</h2>
+        <div id="slotEmpty" class="note">แตะที่ไพ่บนโต๊ะ หรือเลือกช่องจากรายการ เพื่อกำหนดว่าเป็นไพ่ใบไหน</div>
+        <div id="slotForm" hidden>
+          <div class="col">
+            <label class="field"><span>ชื่อตำแหน่ง</span><input type="text" id="slotLabel" maxlength="40"></label>
+            <div class="row">
+              <label class="chk"><input type="checkbox" id="slotRev"> ไพ่กลับหัว</label>
+              <label class="chk"><input type="checkbox" id="slotTurn"> วางขวาง</label>
+            </div>
+            <div class="row">
+              <button class="btn" id="btnClear" type="button">เอาไพ่ออกจากช่อง</button>
+              <button class="btn danger" id="btnDel" type="button">ลบช่อง</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="box" id="meanBox" hidden>
+        <h2>ความหมายไพ่ใบนี้</h2>
+        <div id="meanBody" class="mean"></div>
+      </div>
+
+      <div class="box" id="boxPick">
+        <h2>เลือกไพ่</h2>
+        <input type="search" id="q" placeholder="พิมพ์ชื่อไพ่ เช่น 3 ถ้วย, อัศวินดาบ, Tower แล้วกด Enter" enterkeyhint="done" autocomplete="off" aria-label="ค้นหาไพ่">
+        <div class="tabs" id="tabs"></div>
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="box" id="boxImgs">
+        <h2>รูปไพ่ของคุณเอง</h2>
+        <p class="note">ถ้าเว็บนี้มีรูปไพ่ในโฟลเดอร์ cards ไพ่จะขึ้นเป็นรูปให้เอง ถ้าอยากเปลี่ยนเป็นรูปเด็คของตัวเอง ใส่ได้ที่นี่ ตั้งชื่อไฟล์ให้มีชื่อไพ่ เช่น the-fool.jpg, 00.png, cups03.jpg, swords-king.png ระบบจะจับคู่ให้เอง รูปที่ใส่จะเก็บในเบราว์เซอร์เครื่องนี้และใช้แทนรูปของเว็บ</p>
+        <div class="row">
+          <label class="btn" for="bulk">เลือกรูปไพ่หลายไฟล์</label>
+          <input type="file" id="bulk" accept="image/*" multiple hidden>
+          <label class="btn" for="one" id="oneLabel">รูปสำหรับไพ่ใบที่เลือก</label>
+          <input type="file" id="one" accept="image/*" hidden>
+          <button class="btn danger" id="btnWipe" type="button">ลบรูปที่เก็บไว้</button>
+        </div>
+        <div id="ownerTools" hidden>
+          <div class="row">
+            <button class="btn" id="btnMap" type="button">สร้างไฟล์ cards.json</button>
+          </div>
+          <p class="note">สำหรับเจ้าของเว็บ ใช้ตอนเตรียมโฟลเดอร์ cards จะจดชื่อไฟล์รูปที่เพิ่งเลือกไว้ให้ระบบรู้ว่าไพ่ใบไหนใช้ไฟล์ไหน ปุ่มนี้จะโผล่เฉพาะตอนเปิดในเครื่อง หรือเปิดเว็บด้วย ?admin ต่อท้ายที่อยู่</p>
+        </div>
+        <p class="status" id="imgStatus" role="status"></p>
+      </div>
+
+      <div class="box" id="boxSettings">
+        <h2>ตั้งค่ารูปที่บันทึก</h2>
+        <label class="field"><span>หัวข้อบนรูป (ไม่ใส่ก็ได้)</span><input type="text" id="title" maxlength="60" placeholder="เช่น ดวงความรักเดือนพฤศจิกายน"></label>
+        <div class="field"><span>สีพื้น</span><div class="swatches" id="bgSw"></div></div>
+        <label class="field"><span>ขนาดไพ่</span><input type="range" id="scale" min="70" max="130" value="100"></label>
+        <label class="chk"><input type="checkbox" id="optLabels"> แสดงชื่อตำแหน่งและชื่อไพ่ใต้ไพ่</label>
+        <label class="chk"><input type="checkbox" id="optNums"> แสดงเลขลำดับที่มุมไพ่</label>
+        <label class="chk"><input type="checkbox" id="optLegend"> แสดงรายการสรุปท้ายรูป</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="guide" hidden>
+  <div class="guide-in" role="dialog" aria-modal="true" aria-label="คู่มือและความหมายไพ่">
+    <div class="guide-head">
+      <h2 class="guide-title">คู่มือและความหมายไพ่</h2>
+      <button class="btn" id="guideClose" type="button">ปิด</button>
+    </div>
+    <div class="tabs" id="guideTabs"></div>
+    <div id="guideBody" class="guide-body"></div>
+  </div>
+</div>
+
+<div id="dlg" hidden>
+  <div class="dlg-in" role="dialog" aria-modal="true" aria-label="รูปที่พร้อมบันทึก">
+    <img id="dlgImg" alt="ตัวอย่างรูปที่จะบันทึก">
+    <p class="note" id="dlgNote">ตรวจดูรูปก่อน แล้วกดบันทึก ถ้าปุ่มบันทึกใช้ไม่ได้ ให้กดค้างที่รูปแล้วเลือกบันทึกรูปภาพ</p>
+    <div class="row">
+      <button class="btn primary" id="dlgSave" type="button">บันทึกไฟล์</button>
+      <button class="btn" id="dlgClose" type="button">ปิด</button>
+    </div>
+    <p class="status" id="dlgStatus" role="status"></p>
+  </div>
+</div>
+
+<script src="meanings.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
