@@ -338,11 +338,11 @@ function toBoard(ev) {
   return { x: (ev.clientX - r.left) / r.width * D.W, y: (ev.clientY - r.top) / r.height * D.H - titleH() };
 }
 function hit(p) {
-  var cw = cardW(), ch = cw * RATIO, o = drawOrder();
+  var cw = cardW(), ch = cw * RATIO, o = drawOrder(), pad = COARSE() ? 14 : 0;
   for (var k = o.length - 1; k >= 0; k--) {
     var sl = S.slots[o[k]], dx = p.x - sl.x, dy = p.y - sl.y;
     if (sl.turn) { var t = dx; dx = dy; dy = -t; }
-    if (Math.abs(dx) <= cw / 2 && Math.abs(dy) <= ch / 2) return o[k];
+    if (Math.abs(dx) <= cw / 2 + pad && Math.abs(dy) <= ch / 2 + pad) return o[k];
   }
   return -1;
 }
@@ -353,6 +353,7 @@ function clampSlot(sl) {
   sl.x = lx > hx ? D.W / 2 : Math.max(lx, Math.min(hx, sl.x));
   sl.y = ly > hy ? h / 2 : Math.max(ly, Math.min(hy, sl.y));
 }
+function COARSE() { return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches); }
 var drag = null, lastTap = { t: 0, i: -1 };
 board.addEventListener("pointerdown", function (ev) {
   var p = toBoard(ev), i = hit(p);
@@ -378,7 +379,10 @@ board.addEventListener("pointermove", function (ev) {
   requestRedraw();
 });
 function endDrag() { if (drag) { drag = null; board.classList.remove("drag"); } }
-board.addEventListener("pointerup", endDrag);
+board.addEventListener("pointerup", function () {
+  var d = drag; endDrag();
+  if (d && !d.moved && NARROW() && S.slots[d.i] && !S.slots[d.i].card) openSheet();
+});
 board.addEventListener("pointercancel", endDrag);
 /* the page can still be scrolled by touching empty table; touching a card blocks scrolling so it can be dragged */
 board.addEventListener("touchstart", function (ev) {
@@ -585,7 +589,9 @@ document.addEventListener("keydown", function (e) { if (e.key === "Escape") $("g
 /* ---------- UI ---------- */
 function $(id) { return document.getElementById(id); }
 var tab = "m", query = "", sampleOn = false;
-var HINT_NORMAL = "แตะที่ไพ่เพื่อเลือก ลากเพื่อย้าย แตะสองครั้งเพื่อกลับหัว/หงายขึ้น";
+var HINT_NORMAL = (window.matchMedia && window.matchMedia("(pointer: coarse)").matches)
+  ? "แตะไพ่เพื่อเลือก ลากเพื่อย้าย แล้วใช้ปุ่มด้านล่างเพื่อเลือกไพ่ / กลับหัว"
+  : "แตะที่ไพ่เพื่อเลือก ลากเพื่อย้าย แตะสองครั้งเพื่อกลับหัว/หงายขึ้น";
 var HINT_SAMPLE = "ไพ่บนโต๊ะตอนนี้เป็นตัวอย่าง กด “ล้างโต๊ะ” เพื่อเริ่มจัดของจริง";
 
 function mkSlot(a) { return { label: a[0], x: a[1], y: a[2], turn: a[3] ? 1 : 0, card: null, rev: false }; }
@@ -673,6 +679,7 @@ function syncForm() {
   $("slotTitle").textContent = sl ? "ช่องที่ " + (S.sel + 1) + (slotName(sl) ? " · " + slotName(sl).th : "") : "ช่องที่เลือก";
   if (sl) { $("slotLabel").value = sl.label; $("slotRev").checked = !!sl.rev; $("slotTurn").checked = !!sl.turn; }
   renderMeaning();
+  updateBar();
 }
 function selectSlot(i) { S.sel = i; meanSlot = i; buildSlotChips(); buildGrid(); syncForm(); redraw(); }
 
@@ -711,6 +718,7 @@ function pickCard(id) {
   if (nxt >= 0) S.sel = nxt;
   $("hintP").textContent = HINT_NORMAL;
   buildSlotChips(); buildGrid(); syncForm(); redraw();
+  if (nxt < 0) closeSheet();
   if (dup >= 0) flashHint("ใบนี้อยู่ที่ช่อง " + (dup + 1) + " แล้ว ถ้าตั้งใจวางซ้ำก็ไม่ต้องทำอะไร");
 }
 function addSlot(silent) {
@@ -922,6 +930,39 @@ $("dlgSave").addEventListener("click", function () {
       : "บันทึกจากปุ่มนี้ไม่ได้ ให้กดค้างที่รูปแล้วเลือกบันทึกรูปภาพ";
   });
 });
+
+/* ---------- Mobile helpers: bottom bar, picker sheet, zoom ---------- */
+function NARROW() { return !!(window.matchMedia && window.matchMedia("(max-width: 940px)").matches); }
+function openSheet() { if (NARROW() && S.sel >= 0) document.body.classList.add("sheet-open"); }
+function closeSheet() { document.body.classList.remove("sheet-open"); }
+function updateBar() {
+  var sl = S.sel >= 0 ? S.slots[S.sel] : null, c = sl ? slotName(sl) : null;
+  $("mbar").hidden = !sl;
+  document.body.classList.toggle("has-bar", !!sl);
+  $("mbTitle").textContent = sl ? "ช่องที่ " + (S.sel + 1) + " · " + (sl.label || "ช่อง") + " : " + (c ? c.th + (sl.rev ? " (กลับหัว)" : "") : "ยังไม่เลือกไพ่") : "";
+  $("sheetTitle").textContent = sl ? "เลือกไพ่ให้ช่องที่ " + (S.sel + 1) + (sl.label ? " · " + sl.label : "") : "เลือกไพ่";
+  $("mbPick").textContent = c ? "เปลี่ยนไพ่" : "เลือกไพ่";
+  $("mbRev").disabled = !c; $("mbMean").disabled = !c; $("mbClear").disabled = !c;
+  if (!sl) closeSheet();
+}
+$("mbPick").addEventListener("click", openSheet);
+$("sheetClose").addEventListener("click", closeSheet);
+$("mbRev").addEventListener("click", function () {
+  if (S.sel < 0) return;
+  pushUndo(); S.slots[S.sel].rev = !S.slots[S.sel].rev;
+  buildSlotChips(); syncForm(); redraw();
+});
+$("mbClear").addEventListener("click", function () { $("btnClear").click(); });
+$("mbMean").addEventListener("click", function () {
+  var m = $("meanBox"); if (!m.hidden) m.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("btnZoom").addEventListener("click", function () {
+  var on = !$("stage").classList.contains("zoom");
+  $("stage").classList.toggle("zoom", on);
+  this.setAttribute("aria-pressed", on ? "true" : "false");
+  this.textContent = on ? "ย่อให้พอดีจอ" : "ขยายโต๊ะ (เลื่อนดูซ้ายขวาได้)";
+});
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeSheet(); });
 
 /* ---------- Start ---------- */
 buildTabs(); buildBg(); syncUndo();
