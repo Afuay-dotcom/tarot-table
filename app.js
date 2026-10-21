@@ -16,8 +16,8 @@ var SUITS = [
   { key: "p", th: "เหรียญ", en: "Pentacles", color: "#5d7d36", alias: "pentacle coin coins เพนทาเคิล เพนตาเคิล เหรียญทอง" }
 ];
 var RANKS = [
-  ["เอซ","Ace","เอส"],["2","Two",""],["3","Three",""],["4","Four",""],["5","Five",""],["6","Six",""],["7","Seven",""],["8","Eight",""],["9","Nine",""],["10","Ten",""],
-  ["เพจ","Page","เด็กรับใช้ มหาดเล็ก"],["อัศวิน","Knight","ไนท์ ไนต์"],["ราชินี","Queen","ควีน"],["ราชา","King","คิง กษัตริย์"]
+  ["1","Ace","เอซ เอส หนึ่ง"],["2","Two",""],["3","Three",""],["4","Four",""],["5","Five",""],["6","Six",""],["7","Seven",""],["8","Eight",""],["9","Nine",""],["10","Ten",""],
+  ["เด็ก","Page","เพจ เด็กรับใช้ มหาดเล็ก"],["อัศวิน","Knight","ไนท์ ไนต์"],["ราชินี","Queen","ควีน"],["ราชา","King","คิง กษัตริย์"]
 ];
 
 /* search helpers: ignore spaces and the word "แห่ง", so "3 ถ้วย", "ถ้วย3", "3 of cups" and "3 แห่งถ้วย" all find the same card */
@@ -387,11 +387,7 @@ board.addEventListener("touchstart", function (ev) {
 
 /* ---------- Card images from the cards/ folder (lazy), user images win ---------- */
 var SRC = {};                 /* cardId -> "mine" | "repo" */
-var FILEMAP = {};             /* cardId -> original file name the user picked */
 var REPO = { map: null, tried: {}, ready: null };
-try { FILEMAP = JSON.parse(localStorage.getItem("tarot-filemap") || "{}") || {}; } catch (e) { FILEMAP = {}; }
-function saveMap() { try { localStorage.setItem("tarot-filemap", JSON.stringify(FILEMAP)); } catch (e) {} }
-function recordFile(id, name) { FILEMAP[id] = name; saveMap(); }
 function shrink(im) {
   var w = im.naturalWidth, h = im.naturalHeight, m = 1000, mx = Math.max(w, h);
   if (!w || !h || mx <= m) return im;
@@ -430,28 +426,6 @@ function wantImage(id) {
   REPO.tried[id] = 1;
   REPO.ready.then(function () { if (!IMGS[id]) tryRepo(id, repoUrls(id), 0); });
 }
-
-/* ---------- Saving small files (cards.json) ---------- */
-function offerSave(name, blob, st) {
-  if (typeof dlApi !== "undefined" && dlApi) {
-    dlApi.save({ filename: name, data: blob }).then(function () { st.textContent = "บันทึก " + name + " แล้ว"; })
-      .catch(function (err) { st.textContent = err && err.code === "declined" ? "ยังไม่ได้บันทึก" : "บันทึกไฟล์จากปุ่มนี้ไม่ได้"; });
-    return;
-  }
-  var u = URL.createObjectURL(blob), a = document.createElement("a");
-  a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove();
-  st.textContent = "กำลังบันทึก " + name + " ดูในโฟลเดอร์ดาวน์โหลด";
-}
-(function () {
-  var local = location.protocol === "file:" || /^(localhost|127\.|\[::1\])/.test(location.hostname);
-  if (local || /[?&]admin(\b|=)/.test(location.search)) $("ownerTools").hidden = false;
-})();
-$("btnMap").addEventListener("click", function () {
-  var st = $("imgStatus"), keys = Object.keys(FILEMAP);
-  if (!keys.length) { st.textContent = "ยังไม่มีรายการ กด 'เลือกรูปไพ่หลายไฟล์' ก่อน แล้วค่อยสร้าง cards.json"; return; }
-  var out = {}; keys.sort().forEach(function (k) { out[k] = FILEMAP[k]; });
-  offerSave("cards.json", new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }), st);
-});
 
 /* ---------- Meaning box ---------- */
 var GROUP_LABEL = { m: "เมเจอร์ · บทใหญ่ของชีวิต", w: "ไม้เท้า · ธาตุไฟ", c: "ถ้วย · ธาตุน้ำ", s: "ดาบ · ธาตุลม", p: "เหรียญ · ธาตุดิน" };
@@ -888,7 +862,7 @@ $("bulk").addEventListener("change", function () {
   files.forEach(function (f) {
     var id = matchFile(f.name);
     if (!id || !CARD_BY_ID[id]) { miss.push(f.name); return; }
-    jobs.push(putImage(id, f, true).then(function (good) { if (good) { ok++; recordFile(id, f.name); } else miss.push(f.name); }));
+    jobs.push(putImage(id, f, true).then(function (good) { if (good) ok++; else miss.push(f.name); }));
   });
   Promise.all(jobs).then(function () {
     $("imgStatus").textContent = "จับคู่ได้ " + ok + " รูป" + (miss.length ? " · ไม่พบชื่อไพ่ในไฟล์: " + miss.slice(0, 4).join(", ") + (miss.length > 4 ? " และอีก " + (miss.length - 4) + " ไฟล์" : "") : "");
@@ -900,7 +874,6 @@ $("one").addEventListener("change", function () {
   if (!f) return;
   if (!sl || !sl.card) { $("imgStatus").textContent = "เลือกช่องและไพ่ก่อน แล้วค่อยใส่รูปของไพ่ใบนั้น"; inp.value = ""; return; }
   putImage(sl.card, f, true).then(function (good) {
-    if (good) recordFile(sl.card, f.name);
     $("imgStatus").textContent = good ? "ใส่รูปให้ " + CARD_BY_ID[sl.card].th + " แล้ว" : "เปิดไฟล์รูปนี้ไม่ได้";
     buildGrid(); redraw(); inp.value = "";
   });
@@ -910,7 +883,7 @@ $("btnWipe").addEventListener("click", function () {
   var b = this;
   if (!b.dataset.arm) { b.dataset.arm = "1"; b.textContent = "กดอีกครั้งเพื่อลบรูปทั้งหมด"; wipeTimer = setTimeout(function () { delete b.dataset.arm; b.textContent = "ลบรูปที่เก็บไว้"; }, 3000); return; }
   clearTimeout(wipeTimer); delete b.dataset.arm; b.textContent = "ลบรูปที่เก็บไว้";
-  IMGS = {}; SRC = {}; REPO.tried = {}; FILEMAP = {}; saveMap();
+  IMGS = {}; SRC = {}; REPO.tried = {};
   idbClear().then(function () { $("imgStatus").textContent = "ลบรูปที่เก็บไว้แล้ว กลับไปใช้รูปจากเว็บ (ถ้ามี)"; buildGrid(); redraw(); });
 });
 
