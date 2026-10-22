@@ -46,11 +46,11 @@ header { display: flex; flex-wrap: wrap; align-items: center; justify-content: s
 .mark svg { width: 32px; height: 32px; }
 h1 { font-family: var(--font-title); font-weight: 400; font-size: 2.3rem; line-height: 1.2; margin: 0; color: var(--accent); text-wrap: balance;
   text-shadow: 2px 2px 0 var(--pink); }
-.sub { color: var(--muted); font-size: .92rem; margin: 2px 0 0; max-width: 60ch; }
+.sub { color: var(--muted); font-size: .92rem; margin: 2px 0 0; max-width: 60ch; text-wrap: balance; }
 .head-actions { display: flex; flex-wrap: wrap; gap: 10px; }
 
 /* layout */
-.main { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 22px; align-items: start; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 22px; align-items: start; }
 @media (max-width: 940px) { .main { grid-template-columns: minmax(0, 1fr); } }
 .col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
 
@@ -225,80 +225,39 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .head-actions .btn { white-space: nowrap; }
 #btnReset { min-width: 6.5em; }
 
-/* ===== mobile-friendly additions ===== */
-.stage-scroll { border-radius: 14px; }
-.sheet-head, #zoomBar, #mbar { display: none; }
+/* ---- polish v2 ---- */
+/* desktop: the table stays in view while you scroll the card picker */
+@media (min-width: 941px) {
+  .main > .col:first-child { align-self: stretch; }
+  .stage { position: sticky; top: 14px; z-index: 5; }
+  .grid { max-height: min(520px, 62vh); grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+.cardbtn { align-items: center; }
+.cardbtn .ct { overflow-wrap: anywhere; }
+.cardbtn small { font-size: .7rem; }
+#board { max-width: 100%; }
 
+/* phones */
 @media (max-width: 940px) {
-  /* iOS zooms the page when an input is smaller than 16px */
-  input[type="text"], input[type="search"], select { font-size: 16px; min-height: 46px; }
-  .btn, .chip { min-height: 44px; }
-  body.has-bar { padding-bottom: 150px; }
-
-  /* header: export first and full width, then a tidy grid */
-  .head-actions { display: grid; grid-template-columns: 1fr 1fr; width: 100%; }
-  #btnExport { grid-column: 1 / -1; order: -1; min-height: 48px; }
-  #btnGuide { grid-column: 1 / -1; order: 3; }
+  body { padding-block: 14px 56px; font-size: 15px; }
+  .wrap { gap: 16px; }
+  .main { gap: 16px; }
+  header { gap: 10px; }
   .sub { font-size: .85rem; }
-
-  /* the table: bigger touch area, can be zoomed and scrolled sideways */
-  .stage { padding: 10px; }
-  .stage-scroll { overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
-  #board { touch-action: pan-x pan-y; }
-  .stage.zoom #board { width: 190%; }
-  #zoomBar { display: flex; justify-content: center; order: 3; }
-  .hint { order: 4; }
-  #slotBox { order: 5; }
-  #meanBox { order: 6; }
-
-  /* card picker becomes a bottom sheet */
-  #boxPick { position: fixed; left: 0; right: 0; bottom: 0; z-index: 45; margin: 0; order: 0;
-    height: 68vh; height: 68dvh; border-radius: 22px 22px 0 0; border-bottom: 0; overflow: hidden;
-    padding-bottom: max(14px, env(safe-area-inset-bottom, 0px));
-    box-shadow: 0 -4px 0 var(--lilac), 0 -12px 30px rgba(74, 51, 71, .28);
-    transform: translateY(105%); visibility: hidden; transition: transform .22s ease, visibility 0s linear .22s; }
-  body.sheet-open #boxPick { transform: none; visibility: visible; transition: transform .22s ease; }
-  #boxPick > h2 { display: none; }
-  .sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-  .sheet-head strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--accent-dark); }
-  #boxPick .grid { max-height: none; flex: 1; min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  #boxPick .cardbtn { min-height: 64px; }
-
-  /* quick actions for the selected card, always within thumb reach */
-  #mbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; flex-direction: column; gap: 8px;
-    padding: 10px 12px max(10px, env(safe-area-inset-bottom, 0px)); background: var(--panel); border-top: 2px solid var(--fg);
-    box-shadow: 0 -4px 0 var(--butter); }
-  body.sheet-open #mbar { display: none; }
-  .mb-title { font-size: .9rem; font-weight: 600; text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .mb-btns { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-  .mb-btns .btn { padding: 6px 4px; font-size: .86rem; }
+  .head-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+  .head-actions .btn { width: 100%; min-width: 0; padding-inline: 10px; }
+  /* the table sticks to the top so you can see it while picking cards */
+  .stage { position: sticky; top: max(8px, env(safe-area-inset-top, 0px)); z-index: 5; padding: 10px; border-radius: 18px; box-shadow: 3px 3px 0 var(--pink); }
+  .stage::before, .stage::after { width: 64px; height: 20px; top: -10px; }
+  #board { width: auto; height: auto; max-height: 34vh; margin-inline: auto; }
+  .hint { font-size: .8rem; }
+  .chip, .btn { min-height: 44px; }
+  .chips, .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 8px; margin-inline: -2px; }
+  .chips::-webkit-scrollbar, .tabs::-webkit-scrollbar { display: none; }
+  .chips .chip, .tabs .chip { flex: none; white-space: nowrap; }
+  .slots { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid { max-height: 46vh; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .box { padding: 18px 14px 14px; }
+  input[type="text"], input[type="search"], select { font-size: 16px; }
 }
-
-
-/* ===== shorter page on phones: fold the rarely-used boxes, keep undo/save always within reach ===== */
-#mbar0 { display: none; }
-@media (max-width: 940px) {
-  body { padding-bottom: 130px; }
-  body.has-bar { padding-bottom: 150px; }
-  .box.fold > h2 { cursor: pointer; margin-bottom: 0; }
-  .box.fold > h2::after { content: "+"; margin-left: 4px; font-family: var(--font-num); }
-  .box.fold:not(.closed) > h2::after { content: "–"; }
-  .box.fold.closed { gap: 0; padding-bottom: 12px; }
-  .box.fold.closed > :not(h2) { display: none; }
-  #mbar0 { display: flex; gap: 8px; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
-    padding: 10px 12px max(10px, env(safe-area-inset-bottom, 0px)); background: var(--panel); border-top: 2px solid var(--fg); box-shadow: 0 -4px 0 var(--butter); }
-  #mbar0 .btn { flex: 1; }
-  #mbar0 .primary { flex: 2; }
-  body.has-bar #mbar0, body.sheet-open #mbar0 { display: none; }
-  /* the top buttons are now at the bottom, so the header only needs the guide */
-  #btnExport, #btnUndo { display: none; }
-  .head-actions { grid-template-columns: 1fr 1fr; }
-  #btnGuide { grid-column: auto; order: 0; }
-  #btnReset { order: 1; }
-}
-
-@media (max-width: 940px) {
-  .mb-top { display: flex; align-items: center; gap: 8px; }
-  .mb-top .mb-title { flex: 1; min-width: 0; text-align: left; }
-  .mb-s { min-height: 36px; padding: 2px 12px; font-size: .82rem; flex: none; }
-}
+@media (max-width: 380px) { .grid { grid-template-columns: minmax(0, 1fr); } }
