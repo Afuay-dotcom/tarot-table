@@ -653,7 +653,7 @@ function buildGrid() {
   var box = $("grid"), keep = box.scrollTop; box.innerHTML = "";
   var toks = tokenize(query), searching = toks.length > 0;
   var cur = S.sel >= 0 && S.slots[S.sel] ? S.slots[S.sel].card : null;
-  var used = {}; S.slots.forEach(function (s) { if (s.card) used[s.card] = 1; });
+  var used = {}; S.slots.forEach(function (s, i) { if (s.card) used[s.card] = i + 1; });
   var list = CARDS.filter(function (c) { return searching ? matchCard(c, toks) : c.group === tab; });
   LASTRES = searching ? list : [];
   if (searching && !list.length) {
@@ -662,7 +662,8 @@ function buildGrid() {
   list.forEach(function (c) {
     var b = document.createElement("button"); b.type = "button";
     b.style.setProperty("--sc", c.suit ? c.suit.color : "#c79a3e");
-    b.className = "cardbtn" + (c.id === cur ? " cur" : "") + (used[c.id] ? " used" : "");
+    b.className = "cardbtn" + (c.id === cur ? " cur" : "") + (used[c.id] ? " used" : "") + (used[c.id] && c.id !== cur ? " taken" : "");
+    if (used[c.id] && c.id !== cur) b.title = "อยู่ที่ช่อง " + used[c.id] + " แล้ว";
     b.setAttribute("aria-label", c.th + " " + c.en);
     if (IMGS[c.id]) b.appendChild(thumb(c.id)); else wantImage(c.id);
     var ct = document.createElement("span"); ct.className = "ct";
@@ -706,7 +707,6 @@ function dupCount(id) { var n = 0; if (!id) return 0; S.slots.forEach(function (
 
 function pickCard(id) {
   if (sampleOn) { sampleOn = false; S.slots.forEach(function (s) { s.card = null; s.rev = false; }); }
-  else pushUndo();
   if (!S.slots.length) addSlot(true);
   if (S.sel < 0) {
     var e = -1; S.slots.forEach(function (s, i) { if (e < 0 && !s.card) e = i; });
@@ -714,12 +714,18 @@ function pickCard(id) {
   }
   var target = S.sel, dup = -1;
   S.slots.forEach(function (s, i) { if (dup < 0 && i !== target && s.card === id) dup = i; });
+  /* ไพ่ใบเดียวกันห้ามวางซ้ำ ถ้าอยู่ช่องอื่นแล้วให้เด้งเตือนและไม่เปลี่ยนอะไร */
+  if (dup >= 0) {
+    var cd = CARD_BY_ID[id];
+    flashHint((cd ? cd.th : "ไพ่ใบนี้") + " อยู่ที่ช่อง " + (dup + 1) + " แล้ว เลือกใบอื่นนะ (ถ้าจะย้าย ให้กด “เอาไพ่ออกจากช่อง” ที่ช่องเดิมก่อน)", 4500);
+    return;
+  }
+  pushUndo();
   S.slots[target].card = id; meanSlot = target;
   var nxt = -1; for (var i = target + 1; i < S.slots.length; i++) if (!S.slots[i].card) { nxt = i; break; }
   if (nxt >= 0) S.sel = nxt;
   $("hintP").textContent = HINT_NORMAL;
   buildSlotChips(); buildGrid(); syncForm(); redraw();
-  if (dup >= 0) flashHint("ใบนี้อยู่ที่ช่อง " + (dup + 1) + " แล้ว ถ้าตั้งใจวางซ้ำก็ไม่ต้องทำอะไร");
 }
 function addSlot(silent) {
   if (S.slots.length >= CARDS.length) return;
