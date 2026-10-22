@@ -78,9 +78,9 @@ var BGS = [
 
 /* ---------- Spreads ---------- */
 /* cw = card width; board width 1200 unless set. Slots: [label, x, y, turn] */
-function rowSlots(labels, y, gap) {
+function rowSlots(labels, y, gap, cx) {
   var n = labels.length, out = [];
-  for (var i = 0; i < n; i++) out.push([labels[i], 600 + (i - (n - 1) / 2) * gap, y, 0]);
+  for (var i = 0; i < n; i++) out.push([labels[i], (cx || 600) + (i - (n - 1) / 2) * gap, y, 0]);
   return out;
 }
 function horseshoe() {
@@ -92,9 +92,9 @@ function horseshoe() {
   return out;
 }
 var SPREADS = [
-  { key: "one",   th: "1 ใบ",  w: 1200, h: 580, cw: 170, labels: true,  legend: false, slots: rowSlots(["คำตอบ"], 240, 0) },
-  { key: "three", th: "3 ใบ",  w: 1200, h: 540, cw: 150, labels: true,  legend: false, slots: rowSlots(["อดีต", "ปัจจุบัน", "อนาคต"], 215, 300) },
-  { key: "four",  th: "4 ใบ",  w: 1200, h: 540, cw: 150, labels: true,  legend: false, slots: rowSlots(["สถานการณ์", "อุปสรรค", "คำแนะนำ", "ผลลัพธ์"], 215, 250) },
+  { key: "one",   th: "1 ใบ",  w: 700, h: 620, cw: 200, labels: true,  legend: false, slots: rowSlots(["คำตอบ"], 255, 0, 350) },
+  { key: "three", th: "3 ใบ",  w: 1000, h: 570, cw: 170, labels: true,  legend: false, slots: rowSlots(["อดีต", "ปัจจุบัน", "อนาคต"], 225, 290, 500) },
+  { key: "four",  th: "4 ใบ",  w: 1100, h: 580, cw: 160, labels: true,  legend: false, slots: rowSlots(["สถานการณ์", "อุปสรรค", "คำแนะนำ", "ผลลัพธ์"], 230, 255, 550) },
   { key: "five",  th: "5 ใบ",  w: 1200, h: 540, cw: 150, labels: true,  legend: false, slots: rowSlots(["อดีต", "ปัจจุบัน", "สิ่งที่ซ่อนอยู่", "คำแนะนำ", "อนาคต"], 215, 225) },
   { key: "horse", th: "เกือกม้า 7 ใบ", w: 1200, h: 700, cw: 130, labels: true, legend: false, slots: horseshoe() },
   { key: "celtic", th: "เซลติกครอส 10 ใบ", w: 1100, h: 1200, cw: 110, labels: false, legend: true, slots: [
@@ -253,6 +253,12 @@ function drawBoard(ctx, scale, forExport) {
     ctx.fillStyle = th.bg; ctx.fillRect(0, 0, D.W, D.H);
     ctx.save(); ctx.lineWidth = 3; ctx.strokeStyle = th.edge; rr(ctx, 16, 16, D.W - 32, D.H - 32, 30); ctx.stroke();
     ctx.lineWidth = 2; ctx.setLineDash([10, 9]); ctx.globalAlpha = 0.8; rr(ctx, 30, 30, D.W - 60, D.H - 60, 22); ctx.stroke(); ctx.restore();
+    var vg = ctx.createRadialGradient(D.W / 2, D.H * 0.4, 20, D.W / 2, D.H / 2, Math.max(D.W, D.H) * 0.7);
+    vg.addColorStop(0, "rgba(255,255,255,0.38)"); vg.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, D.W, D.H);
+    ctx.save(); ctx.globalAlpha = 0.16; ctx.fillStyle = th.edge;
+    for (var gx = 62; gx < D.W - 50; gx += 30) for (var gy = 62; gy < D.H - 50; gy += 30) { ctx.beginPath(); ctx.arc(gx, gy, 1.6, 0, Math.PI * 2); ctx.fill(); }
+    ctx.restore();
     var cs = [[44, 44], [D.W - 44, 44], [44, D.H - 44], [D.W - 44, D.H - 44]];
     for (k = 0; k < 4; k++) drawSpark(ctx, cs[k][0], cs[k][1], 15, th.edge);
   }
@@ -327,6 +333,7 @@ var RS = 2;
 function redraw() {
   var D = dims();
   if (board.width !== D.W * RS || board.height !== D.H * RS) { board.width = D.W * RS; board.height = D.H * RS; }
+  board.style.setProperty("--bw", D.W + "px"); board.style.setProperty("--bar", String(D.W / D.H));
   drawBoard(bctx, RS, false);
   scheduleSave();
 }
