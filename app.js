@@ -605,9 +605,11 @@ function loadSpread(key, carry) {
     var od = spreadDef(prevKey), fx = def.w / od.w, fy = def.h / od.h;
     S.slots = old.map(function (o) { return { label: o.label, x: o.x * fx, y: o.y * fy, turn: o.turn, card: o.card, rev: o.rev }; });
   } else if (carry) old.forEach(function (o, i) { if (S.slots[i]) { S.slots[i].card = o.card; S.slots[i].rev = o.rev; } });
+  var removed = dedupeSlots();
   S.labels = def.labels; S.legend = def.legend;
   $("optLabels").checked = S.labels; $("optLegend").checked = S.legend; $("optNums").checked = S.nums;
   refreshAll();
+  if (removed) flashHint("มีไพ่ซ้ำ " + removed + " ใบ เอาออกจากช่องให้แล้ว (เก็บใบแรกไว้)", 5000);
 }
 function refreshAll() { buildSpreadChips(); buildSlotChips(); buildGrid(); syncForm(); redraw(); }
 
@@ -700,8 +702,18 @@ function undo() {
   if (!UNDO.length) return;
   var o = JSON.parse(UNDO.pop());
   S.spread = o.spread; S.slots = o.slots; S.labels = o.labels; S.legend = o.legend; S.sel = -1; meanSlot = -1; sampleOn = false;
+  dedupeSlots();
   $("optLabels").checked = S.labels; $("optLegend").checked = S.legend;
   refreshAll(); syncUndo(); flashHint("ย้อนกลับแล้ว", 2000);
+}
+/* เก็บไพ่ใบแรกไว้ ใบที่ซ้ำหลังจากนั้นเอาออกจากช่อง (ใช้กับโต๊ะเก่าที่จดไว้ และตอนเปลี่ยนรูปแบบการเรียง) */
+function dedupeSlots() {
+  var seen = {}, n = 0;
+  S.slots.forEach(function (sl) {
+    if (!sl.card) return;
+    if (seen[sl.card]) { sl.card = null; sl.rev = false; n++; } else seen[sl.card] = 1;
+  });
+  return n;
 }
 function dupCount(id) { var n = 0; if (!id) return 0; S.slots.forEach(function (s) { if (s.card === id) n++; }); return n; }
 
@@ -782,10 +794,12 @@ function applySaved() {
   S.title = String(o.title || "").slice(0, 60);
   S.labels = !!o.labels; S.nums = o.nums !== false; S.legend = !!o.legend;
   S.sel = -1; meanSlot = -1; sampleOn = false;
+  var removedSaved = dedupeSlots();
   $("title").value = S.title; $("scale").value = String(S.scale);
   $("optLabels").checked = S.labels; $("optNums").checked = S.nums; $("optLegend").checked = S.legend;
   buildBg(); refreshAll();
   $("hintP").textContent = HINT_NORMAL;
+  if (removedSaved) flashHint("โต๊ะที่จดไว้มีไพ่ซ้ำ " + removedSaved + " ใบ เอาออกจากช่องให้แล้ว (เก็บใบแรกไว้)", 5000);
   return true;
 }
 /* ask the browser not to wipe the stored card images when space runs low */
