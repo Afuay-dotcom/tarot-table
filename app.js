@@ -621,6 +621,7 @@ function buildSpreadChips() {
   });
 }
 function buildSlotChips() {
+  var ba = document.getElementById("btnAdd"); if (ba) { ba.disabled = S.slots.length >= CARDS.length; ba.title = ba.disabled ? "ช่องเต็มแล้ว (มีไพ่ทั้งหมด " + CARDS.length + " ใบ)" : ""; }
   var box = $("slotChips"); box.innerHTML = "";
   if (!S.slots.length) { var p = document.createElement("p"); p.className = "note"; p.textContent = "ยังไม่มีช่อง กด “+ เพิ่มช่อง” เพื่อวางไพ่ใบแรก"; box.appendChild(p); }
   S.slots.forEach(function (sl, i) {
@@ -721,6 +722,7 @@ function pickCard(id) {
   if (dup >= 0) flashHint("ใบนี้อยู่ที่ช่อง " + (dup + 1) + " แล้ว ถ้าตั้งใจวางซ้ำก็ไม่ต้องทำอะไร");
 }
 function addSlot(silent) {
+  if (S.slots.length >= CARDS.length) return;
   if (!silent) pushUndo();
   var d = curDef(), n = S.slots.length + 1, off = (S.slots.length % 6) * 28;
   S.slots.push({ label: "ช่อง " + n, x: d.w / 2 + off, y: d.h / 2 - 30 + off, turn: 0, card: null, rev: false });
