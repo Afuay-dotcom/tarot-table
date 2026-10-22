@@ -129,6 +129,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .cardbtn:hover { border-color: var(--fg); transform: translateY(-1px); }
 .cardbtn small { display: block; color: var(--muted); font-size: .72rem; margin-top: 1px; }
 .cardbtn.cur { border-color: var(--fg); background: var(--pink); box-shadow: 2px 2px 0 var(--fg); }
+.cardbtn.taken { opacity: .45; cursor: not-allowed; filter: grayscale(.6); }
+.cardbtn.taken:hover { transform: none; border-color: var(--line); }
 .cardbtn.used::after { content: "✦"; position: absolute; top: 5px; right: 8px; font-size: .8rem; color: var(--accent); }
 
 /* background swatches */
