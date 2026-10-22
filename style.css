@@ -231,8 +231,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
   .main { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 22px; align-items: start; }
   .main > .col { display: contents; }
   #boxSpread, .stage, #hintP, #boxSlots { grid-column: 1 / -1; }
-  .stage { padding: 14px; }
-  #board { width: auto; max-width: 100%; max-height: 56vh; margin-inline: auto; }
+  .stage { padding: 14px; width: fit-content; max-width: 100%; justify-self: center; }
+  #board { width: min(var(--bw, 1200px), calc(56vh * var(--bar, 2.4))); max-width: 100%; height: auto; }
   #hintP { margin-top: -22px; }
   #boxPick { grid-column: 1 / 3; grid-row: span 2; order: 1; margin-top: 0; }
   #slotBox { grid-column: 3; order: 2; margin-top: 0; }
