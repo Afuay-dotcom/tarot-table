@@ -28,14 +28,16 @@
   </header>
 
   <div class="main">
-    <div class="col">
+    <div class="col left">
+      <div class="stage" id="stage"><canvas id="board" width="2400" height="1000" aria-label="โต๊ะเรียงไพ่ ลากไพ่เพื่อย้ายตำแหน่ง"></canvas></div>
+      <p class="hint" id="hintP">แตะที่ไพ่เพื่อเลือก ลากเพื่อย้าย แตะสองครั้งเพื่อกลับหัว/หงายขึ้น</p>
+    </div>
+
+    <div class="col side">
       <div class="box" id="boxSpread">
         <h2>รูปแบบการเรียง</h2>
         <div class="chips" id="spreadChips"></div>
       </div>
-
-      <div class="stage" id="stage"><canvas id="board" width="2400" height="1000" aria-label="โต๊ะเรียงไพ่ ลากไพ่เพื่อย้ายตำแหน่ง"></canvas></div>
-      <p class="hint" id="hintP">แตะที่ไพ่เพื่อเลือก ลากเพื่อย้าย แตะสองครั้งเพื่อกลับหัว/หงายขึ้น</p>
 
       <div class="box" id="boxSlots">
         <h2>ช่องไพ่ทั้งหมด</h2>
@@ -44,9 +46,7 @@
           <button class="btn" id="btnAdd" type="button">+ เพิ่มช่อง</button>
         </div>
       </div>
-    </div>
 
-    <div class="col side">
       <div class="box" id="slotBox">
         <h2 id="slotTitle">ช่องที่เลือก</h2>
         <div id="slotEmpty" class="note">แตะที่ไพ่บนโต๊ะ หรือเลือกช่องจากรายการ เพื่อกำหนดว่าเป็นไพ่ใบไหน</div>
@@ -65,16 +65,26 @@
         </div>
       </div>
 
-      <div class="box" id="meanBox" hidden>
-        <h2>ความหมายไพ่ใบนี้</h2>
-        <div id="meanBody" class="mean"></div>
-      </div>
-
       <div class="box" id="boxPick">
         <h2>เลือกไพ่</h2>
         <input type="search" id="q" placeholder="ค้นหาไพ่ เช่น 3 ถ้วย, อัศวินดาบ, tower" enterkeyhint="done" autocomplete="off" aria-label="ค้นหาไพ่">
         <div class="tabs" id="tabs"></div>
         <div class="grid" id="grid"></div>
+      </div>
+
+      <div class="box" id="meanBox" hidden>
+        <h2>ความหมายไพ่ใบนี้</h2>
+        <div id="meanBody" class="mean"></div>
+      </div>
+
+      <div class="box" id="boxSettings">
+        <h2>ตั้งค่ารูปที่บันทึก</h2>
+        <label class="field"><span>หัวข้อบนรูป (ไม่ใส่ก็ได้)</span><input type="text" id="title" maxlength="60" placeholder="เช่น ดวงความรักเดือนพฤศจิกายน"></label>
+        <div class="field"><span>สีพื้น</span><div class="swatches" id="bgSw"></div></div>
+        <label class="field"><span>ขนาดไพ่</span><input type="range" id="scale" min="70" max="130" value="100"></label>
+        <label class="chk"><input type="checkbox" id="optLabels"> แสดงชื่อตำแหน่งและชื่อไพ่ใต้ไพ่</label>
+        <label class="chk"><input type="checkbox" id="optNums"> แสดงเลขลำดับที่มุมไพ่</label>
+        <label class="chk"><input type="checkbox" id="optLegend"> แสดงรายการสรุปท้ายรูป</label>
       </div>
 
       <div class="box" id="boxImgs">
@@ -88,16 +98,6 @@
           <button class="btn danger" id="btnWipe" type="button">ลบรูปที่เก็บไว้</button>
         </div>
         <p class="status" id="imgStatus" role="status"></p>
-      </div>
-
-      <div class="box" id="boxSettings">
-        <h2>ตั้งค่ารูปที่บันทึก</h2>
-        <label class="field"><span>หัวข้อบนรูป (ไม่ใส่ก็ได้)</span><input type="text" id="title" maxlength="60" placeholder="เช่น ดวงความรักเดือนพฤศจิกายน"></label>
-        <div class="field"><span>สีพื้น</span><div class="swatches" id="bgSw"></div></div>
-        <label class="field"><span>ขนาดไพ่</span><input type="range" id="scale" min="70" max="130" value="100"></label>
-        <label class="chk"><input type="checkbox" id="optLabels"> แสดงชื่อตำแหน่งและชื่อไพ่ใต้ไพ่</label>
-        <label class="chk"><input type="checkbox" id="optNums"> แสดงเลขลำดับที่มุมไพ่</label>
-        <label class="chk"><input type="checkbox" id="optLegend"> แสดงรายการสรุปท้ายรูป</label>
       </div>
     </div>
   </div>
